@@ -129,7 +129,7 @@ jobs:
 
             # Ejecutar tests con Maestro (con debug y screenshots)
             set +e  # No fallar inmediatamente si Maestro falla
-            maestro test .maestro/wikipedia-test.yaml --format junit --output maestro-report.xml --debug --screenshot-on-failure
+            maestro test .maestro/wikipedia-test.yaml --format junit --output maestro-report.xml --debug-output
             MAESTRO_EXIT_CODE=$?
             set -e  # Volver a activar el modo estricto
 
