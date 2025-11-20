@@ -15,14 +15,30 @@ jobs:
         run: xcrun simctl list devices
 
       - name: Boot iOS Simulator (iPhone 14)
+        id: boot-simulator
         run: |
-          UDID=$(xcrun simctl list devices | grep "iPhone 14 (" | grep -oE "[A-F0-9-]{36}")
+          # Buscar iPhone 14 (puede ser iPhone 14, iPhone 14 Pro, etc.)
+          UDID=$(xcrun simctl list devices available | grep -i "iPhone 14" | grep -v "unavailable" | head -1 | grep -oE "[A-F0-9-]{36}")
+
+          if [ -z "$UDID" ]; then
+            echo "No se encontró iPhone 14 disponible. Listando todos los dispositivos:"
+            xcrun simctl list devices available
+            exit 1
+          fi
+
+          echo "UDID encontrado: $UDID"
+          echo "udid=$UDID" >> $GITHUB_OUTPUT
+
           echo "Booting simulator $UDID"
-          xcrun simctl boot "$UDID"
+          xcrun simctl boot "$UDID" || true
+
+          echo "Abriendo Simulator"
           open -a Simulator
 
       - name: Wait until simulator is ready
         run: |
+          UDID="${{ steps.boot-simulator.outputs.udid }}"
+          echo "Esperando a que el simulador $UDID esté listo..."
           xcrun simctl bootstatus "$UDID" -b
 
       # Ejemplo opcional: correr tests con Xcode
