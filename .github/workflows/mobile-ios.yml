@@ -1,0 +1,30 @@
+name: Test Mobile Wikipedia con Maestro
+
+on:
+  workflow_dispatch:
+
+jobs:
+  ios-sim:
+    runs-on: macos-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: List available simulators
+        run: xcrun simctl list devices
+
+      - name: Boot iOS Simulator (iPhone 14)
+        run: |
+          UDID=$(xcrun simctl list devices | grep "iPhone 14 (" | grep -oE "[A-F0-9-]{36}")
+          echo "Booting simulator $UDID"
+          xcrun simctl boot "$UDID"
+          open -a Simulator
+
+      - name: Wait until simulator is ready
+        run: |
+          xcrun simctl bootstatus "$UDID" -b
+
+      # Ejemplo opcional: correr tests con Xcode
+      # - name: Run iOS tests
+      #   run: xcodebuild test -scheme YourApp -destination "platform=iOS Simulator,name=iPhone 14"
