@@ -1,0 +1,31 @@
+name: Mensaje Manual
+
+on:
+  workflow_dispatch:
+    inputs:
+      mensaje:
+        description: "Mensaje a mostrar en la consola"
+        required: false
+        default: "¡Hola desde GitHub Actions!"
+        type: string
+
+jobs:
+  mostrar-mensaje:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Mostrar mensaje en consola
+        run: |
+          echo "=========================================="
+          echo "Mensaje desde GitHub Actions"
+          echo "=========================================="
+          echo ""
+          echo "Mensaje personalizado: ${{ inputs.mensaje }}"
+          echo ""
+          echo "Fecha y hora: $(date)"
+          echo "Ejecutado por: ${{ github.actor }}"
+          echo "Repositorio: ${{ github.repository }}"
+          echo ""
+          echo "=========================================="
+          echo "Ejecución completada exitosamente"
+          echo "=========================================="
