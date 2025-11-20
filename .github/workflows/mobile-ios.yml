@@ -1,4 +1,4 @@
-name: Test Mobile Wikipedia con Maestro - IOS
+name: Test Mobile Wikipedia con Maestro - iOS
 
 on:
   workflow_dispatch:
@@ -11,36 +11,68 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
+      - name: Instalar Maestro
+        run: |
+          curl -Ls "https://get.maestro.mobile.dev" | bash
+          echo "$HOME/.maestro/bin" >> $GITHUB_PATH
+          export PATH="$PATH:$HOME/.maestro/bin"
+          maestro --version
+
       - name: List available simulators
         run: xcrun simctl list devices
 
       - name: Boot iOS Simulator (iPhone 16)
         id: boot-simulator
         run: |
-          # Buscar iPhone 16 (puede ser iPhone 16, iPhone 16 Pro, etc.)
-          UDID=$(xcrun simctl list devices available | grep -i "iPhone 16" | grep -v "unavailable" | head -1 | grep -oE "[A-F0-9-]{36}")
+          UDID=$(xcrun simctl list devices available | grep -i "iPhone 16" | head -1 | grep -oE "[A-F0-9-]{36}")
 
-          if [ -z "$UDID" ]; then
-            echo "No se encontró iPhone 16 disponible. Listando todos los dispositivos:"
-            xcrun simctl list devices available
-            exit 1
-          fi
+          if [ -z "$UDID" ]; then echo "No se encontró iPhone 16 disponible."; xcrun simctl list devices available; exit 1; fi
 
-          echo "UDID encontrado: $UDID"
           echo "udid=$UDID" >> $GITHUB_OUTPUT
 
-          echo "Booting simulator $UDID"
           xcrun simctl boot "$UDID" || true
-
-          echo "Abriendo Simulator"
           open -a Simulator
+          echo "Simulador booted: $UDID"
 
       - name: Wait until simulator is ready
         run: |
           UDID="${{ steps.boot-simulator.outputs.udid }}"
-          echo "Esperando a que el simulador $UDID esté listo..."
+          echo "Esperando simulador..."
           xcrun simctl bootstatus "$UDID" -b
 
-      # Ejemplo opcional: correr tests con Xcode
-      # - name: Run iOS tests
-      #   run: xcodebuild test -scheme YourApp -destination "platform=iOS Simulator,name=iPhone 14"
+      - name: Clonar app open-source de ejemplo
+        run: |
+          git clone https://github.com/appium/ios-uicatalog.git ios-app
+          cd ios-app
+          git checkout main
+
+      - name: Compilar app para simulador
+        run: |
+          cd ios-app
+          # Limpiar build anterior
+          xcodebuild clean -project UICatalog.xcodeproj -scheme UICatalog -sdk iphonesimulator
+          # Compilar para simulador
+          xcodebuild -project UICatalog.xcodeproj -scheme UICatalog -sdk iphonesimulator -configuration Debug -derivedDataPath build
+          # Guardar path del .app generado
+          APP_PATH="$(pwd)/build/Build/Products/Debug-iphonesimulator/UICatalog.app"
+          echo "app_path=$APP_PATH" >> $GITHUB_OUTPUT
+
+      - name: Instalar app en simulador
+        run: |
+          UDID="${{ steps.boot-simulator.outputs.udid }}"
+          APP_PATH="${{ steps.compile-app.outputs.app_path }}"
+
+          if [ ! -d "$APP_PATH" ]; then echo "ERROR: No se encontró la app compilada en $APP_PATH"; exit 1; fi
+
+          echo "Instalando app en el simulador..."
+          xcrun simctl install "$UDID" "$APP_PATH"
+          echo "App instalada"
+
+      - name: Ejecutar tests con Maestro
+        run: |
+          export PATH="$PATH:$HOME/.maestro/bin"
+          maestro test .maestro/wikipedia-ios.yaml --format junit --output maestro-report.xml || true
+
+      - name: Mostrar reporte
+        run: |
+          if [ -f maestro-report.xml ]; then echo "=== Reporte generado ==="; cat maestro-report.xml; else echo "No se generó reporte"; fi
