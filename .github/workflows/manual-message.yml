@@ -42,19 +42,12 @@ jobs:
             echo "Dispositivo conectado y listo"
             echo ""
 
-            # Instalar APK desde el repositorio
             echo "Preparando aplicación desde mobileBuilds/build.apk..."
-            if [ -f mobileBuilds/build.apk ]; then
-              echo "APK encontrado en mobileBuilds/build.apk"
-              cp mobileBuilds/build.apk wikipedia.apk
-              echo "Instalando aplicación..."
-              adb install -r wikipedia.apk
-              echo "Aplicación instalada correctamente"
-            else
-              echo "Error: No se encontró el APK en mobileBuilds/build.apk"
-              echo "Asegúrate de que el archivo existe en el repositorio"
-              exit 1
-            fi
+            echo "APK encontrado en mobileBuilds/build.apk"
+            cp mobileBuilds/build.apk wikipedia.apk
+            echo "Instalando aplicación..."
+            adb install -r wikipedia.apk
+            echo "Aplicación instalada correctamente"
 
             echo ""
             echo "=========================================="
