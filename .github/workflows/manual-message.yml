@@ -44,9 +44,13 @@ jobs:
 
             # Descargar e instalar Wikipedia APK
             echo "Descargando aplicación de Wikipedia..."
-            wget -q --timeout=10 https://github.com/wikimedia/apps-android-wikipedia/releases/download/latest/app-wikipedia-beta-universal-release.apk -O wikipedia.apk 2>/dev/null || \
-            wget -q --timeout=10 https://f-droid.org/repo/org.wikipedia.apk -O wikipedia.apk 2>/dev/null || \
-            echo "Advertencia: No se pudo descargar el APK automáticamente"
+            if wget -q --timeout=10 https://github.com/wikimedia/apps-android-wikipedia/releases/download/latest/app-wikipedia-beta-universal-release.apk -O wikipedia.apk 2>/dev/null; then
+              echo "APK descargado desde GitHub"
+            elif wget -q --timeout=10 https://f-droid.org/repo/org.wikipedia.apk -O wikipedia.apk 2>/dev/null; then
+              echo "APK descargado desde F-Droid"
+            else
+              echo "Advertencia: No se pudo descargar el APK automáticamente"
+            fi
 
             if [ -f wikipedia.apk ]; then
               echo "Instalando Wikipedia..."
@@ -61,6 +65,12 @@ jobs:
             echo "=========================================="
             echo "Ejecutando tests con Maestro"
             echo "=========================================="
+
+            # Asegurar que Maestro esté en el PATH
+            export PATH="$PATH:$HOME/.maestro/bin"
+
+            # Verificar que Maestro esté instalado
+            maestro --version || echo "Advertencia: Maestro no está disponible"
 
             # Ejecutar tests con Maestro
             maestro test .maestro/wikipedia-test.yaml --format junit --output maestro-report.xml || true
