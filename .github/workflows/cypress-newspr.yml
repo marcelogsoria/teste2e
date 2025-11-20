@@ -24,7 +24,6 @@ jobs:
         with:
           install: false
           browser: chrome
-          headless: true
           spec: cypress/e2e/newspr.cy.js
 
       - name: Subir artefactos de Cypress
