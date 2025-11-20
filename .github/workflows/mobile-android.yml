@@ -68,8 +68,15 @@ jobs:
             # Verificar que Maestro esté instalado
             maestro --version || echo "Advertencia: Maestro no está disponible"
 
-            # Ejecutar tests con Maestro
-            maestro test .maestro/wikipedia-test.yaml --format junit --output maestro-report.xml || true
+            # Ejecutar tests con Maestro (con debug y screenshots)
+            set +e  # No fallar inmediatamente si Maestro falla
+            maestro test .maestro/wikipedia-test.yaml \
+              --format junit \
+              --output maestro-report.xml \
+              --debug \
+              --screenshot-on-failure
+            MAESTRO_EXIT_CODE=$?
+            set -e  # Volver a activar el modo estricto
 
             echo ""
             echo "=========================================="
@@ -80,5 +87,69 @@ jobs:
             echo "Aplicación: Wikipedia Mobile"
             echo "Fecha: $(date)"
             echo ""
-            if [ -f maestro-report.xml ]; then echo "Reporte generado: maestro-report.xml"; cat maestro-report.xml;else echo "No se generó reporte de Maestro"; fi
+
+            # Si Maestro falló, obtener información adicional de debug
+            if [ "$MAESTRO_EXIT_CODE" != "0" ]; then
+              echo "=========================================="
+              echo "DEBUG: Información de la pantalla actual (Maestro falló)"
+              echo "=========================================="
+              
+              # Obtener información de la jerarquía de la UI actual
+              echo ""
+              echo "--- Jerarquía completa de la UI (uiautomator dump) ---"
+              adb shell uiautomator dump /sdcard/ui_dump.xml
+              adb pull /sdcard/ui_dump.xml ui_dump.xml 2>/dev/null || echo "No se pudo obtener dump de UI"
+              if [ -f ui_dump.xml ]; then
+                echo "Contenido del dump de UI:"
+                cat ui_dump.xml | head -200
+                echo ""
+                echo "... (truncado, archivo completo guardado en ui_dump.xml)"
+              fi
+              
+              echo ""
+              echo "--- Información de ventanas activas (dumpsys window) ---"
+              adb shell dumpsys window windows | grep -E "mCurrentFocus|mFocusedApp" | head -10 || echo "No se pudo obtener información de ventanas"
+              
+              echo ""
+              echo "--- Elementos visibles en pantalla (texto) ---"
+              adb shell uiautomator dump /dev/tty 2>/dev/null | grep -oP 'text="[^"]*"' | head -30 || echo "No se pudieron obtener elementos de texto"
+              
+              echo ""
+              echo "--- Capturando screenshot manual del estado actual ---"
+              SCREENSHOT_NAME="maestro-failure-$(date +%Y%m%d-%H%M%S).png"
+              adb shell screencap -p /sdcard/screenshot.png
+              adb pull /sdcard/screenshot.png "$SCREENSHOT_NAME" 2>/dev/null && echo "Screenshot guardado: $SCREENSHOT_NAME" || echo "No se pudo capturar screenshot"
+              
+              echo ""
+              echo "--- Logs recientes de la aplicación ---"
+              adb logcat -d -t 100 | grep -i "wikipedia\|error\|exception" | tail -50 || adb logcat -d | tail -30
+              
+              echo ""
+              echo "--- Screenshots generados por Maestro ---"
+              find . -name "*.png" -type f -mmin -5 | head -10 || echo "No se encontraron screenshots recientes de Maestro"
+              
+              echo ""
+            fi
+
+            if [ -f maestro-report.xml ]; then 
+              echo "Reporte generado: maestro-report.xml"
+              cat maestro-report.xml
+            else 
+              echo "No se generó reporte de Maestro"
+            fi
+
             echo "=========================================="
+
+            # Guardar screenshots y dumps en un directorio para artefactos
+            mkdir -p maestro-screenshots
+            find . -name "*.png" -type f -mmin -5 -exec cp {} maestro-screenshots/ \; || true
+            find . -name "maestro-failure-*.png" -exec cp {} maestro-screenshots/ \; || true
+            [ -f ui_dump.xml ] && cp ui_dump.xml maestro-screenshots/ || true
+
+      - name: Subir screenshots como artefactos
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: maestro-screenshots
+          path: maestro-screenshots/
+          if-no-files-found: ignore

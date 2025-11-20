@@ -44,9 +44,9 @@ jobs:
         run: |
           git clone https://github.com/appium/ios-uicatalog.git ios-app
           cd ios-app
-          git checkout main
 
       - name: Compilar app para simulador
+        id: compile-app
         run: |
           cd ios-app
           # Limpiar build anterior
