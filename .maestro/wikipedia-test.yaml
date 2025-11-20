@@ -8,6 +8,9 @@ appId: org.wikipedia
 # Esperar a que la app cargue completamente
 - waitForAnimationToEnd
 
+# Tocar en el campo skip
+- tapOn: "Skip"
+
 # Tocar en el campo de búsqueda (acción básica: interactuar con campo de texto)
 - tapOn: "Search Wikipedia"
 

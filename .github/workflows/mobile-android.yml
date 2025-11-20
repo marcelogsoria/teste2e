@@ -24,6 +24,14 @@ jobs:
           distribution: "temurin"
           java-version: "17"
 
+      - name: Cache Android AVD
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.android/avd
+            ~/Library/Android/sdk/system-images
+          key: ${{ runner.os }}-avd-api29
+
       - name: Iniciar emulador de Android y ejecutar tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
