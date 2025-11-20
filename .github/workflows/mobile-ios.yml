@@ -43,12 +43,25 @@ jobs:
       - name: Clonar app open-source de ejemplo
         run: |
           git clone https://github.com/appium/ios-uicatalog.git ios-app
-          cd ios-app
+          echo "Repositorio clonado en ios-app"
+          ls -la ios-app/ | head -20
 
       - name: Compilar app para simulador
         id: compile-app
         run: |
           cd ios-app
+          echo "Directorio actual: $(pwd)"
+          echo "Contenido del directorio:"
+          ls -la
+
+          if [ ! -d "UICatalog.xcodeproj" ]; then
+            echo "ERROR: UICatalog.xcodeproj no encontrado en $(pwd)"
+            echo "Buscando archivos .xcodeproj..."
+            find . -name "*.xcodeproj" -type d
+            exit 1
+          fi
+
+          echo "Proyecto encontrado, iniciando compilación..."
           # Limpiar build anterior
           xcodebuild clean -project UICatalog.xcodeproj -scheme UICatalog -sdk iphonesimulator
           # Compilar para simulador
