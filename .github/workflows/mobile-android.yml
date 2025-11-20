@@ -72,7 +72,5 @@ jobs:
             echo "Aplicación: Wikipedia Mobile"
             echo "Fecha: $(date)"
             echo ""
-            if [ -f maestro-report.xml ]; then
-              echo "Reporte generado: maestro-report.xml"
-            fi
+            if [ -f maestro-report.xml ]; then echo "Reporte generado: maestro-report.xml"; cat maestro-report.xml;else echo "No se generó reporte de Maestro"; fi
             echo "=========================================="

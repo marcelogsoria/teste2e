@@ -6,42 +6,30 @@ appId: org.wikipedia
 - launchApp
 
 # Esperar a que la app cargue completamente
-- waitForAnimationToEnd:
-    timeout: 10000
+- waitForAnimationToEnd
 
 # Tocar en el campo de búsqueda (acción básica: interactuar con campo de texto)
-- tapOn:
-    text: "Search Wikipedia"
-    timeout: 5000
+- tapOn: "Search Wikipedia"
 
 # Ingresar texto en el campo de búsqueda (dato básico en campo de texto)
 - inputText: "Android"
 
 # Esperar a que aparezcan los resultados de búsqueda
-- waitForAnimationToEnd:
-    timeout: 5000
+- waitForAnimationToEnd
 
 # Verificar que se muestren resultados de búsqueda (verificación básica)
-- assertVisible:
-    text: ".*Android.*"
-    timeout: 8000
+- assertVisible: ".*Android.*"
 
 # Seleccionar el primer resultado (acción básica: tocar en resultado)
 - tapOn:
     point: "50%,25%"
-    timeout: 5000
 
 # Esperar a que cargue la página del artículo
-- waitForAnimationToEnd:
-    timeout: 10000
+- waitForAnimationToEnd
 
 # Verificar que se abrió la página del artículo (verificación básica de acción)
-- assertVisible:
-    text: ".*Android.*"
-    timeout: 8000
+- assertVisible: ".*Android.*"
 
 # Verificar que hay contenido visible en la página (verificación adicional)
 - assertVisible:
     id: "org.wikipedia:id/view_page_title_text"
-    timeout: 5000
-
