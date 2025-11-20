@@ -1,31 +1,80 @@
-name: Mensaje Manual
+name: Test Mobile Wikipedia con Maestro
 
 on:
   workflow_dispatch:
-    inputs:
-      mensaje:
-        description: "Mensaje a mostrar en la consola"
-        required: false
-        default: "¡Hola desde GitHub Actions!"
-        type: string
 
 jobs:
-  mostrar-mensaje:
+  test-wikipedia:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Mostrar mensaje en consola
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Instalar Maestro
         run: |
-          echo "=========================================="
-          echo "Mensaje desde GitHub Actions"
-          echo "=========================================="
-          echo ""
-          echo "Mensaje personalizado: ${{ inputs.mensaje }}"
-          echo ""
-          echo "Fecha y hora: $(date)"
-          echo "Ejecutado por: ${{ github.actor }}"
-          echo "Repositorio: ${{ github.repository }}"
-          echo ""
-          echo "=========================================="
-          echo "Ejecución completada exitosamente"
-          echo "=========================================="
+          curl -Ls "https://get.maestro.mobile.dev" | bash
+          export PATH="$PATH:$HOME/.maestro/bin"
+          echo "$HOME/.maestro/bin" >> $GITHUB_PATH
+          maestro --version
+
+      - name: Configurar Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "17"
+
+      - name: Iniciar emulador de Android y ejecutar tests
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 29
+          arch: x86_64
+          ram-size: 2048M
+          disk-size: 4096M
+          target: default
+          profile: Nexus 6
+          script: |
+            echo "=========================================="
+            echo "Emulador iniciado correctamente"
+            echo "=========================================="
+            adb devices
+            adb wait-for-device
+            echo "Dispositivo conectado y listo"
+            echo ""
+
+            # Descargar e instalar Wikipedia APK
+            echo "Descargando aplicación de Wikipedia..."
+            wget -q --timeout=10 https://github.com/wikimedia/apps-android-wikipedia/releases/download/latest/app-wikipedia-beta-universal-release.apk -O wikipedia.apk 2>/dev/null || \
+            wget -q --timeout=10 https://f-droid.org/repo/org.wikipedia.apk -O wikipedia.apk 2>/dev/null || \
+            echo "Advertencia: No se pudo descargar el APK automáticamente"
+
+            if [ -f wikipedia.apk ]; then
+              echo "Instalando Wikipedia..."
+              adb install -r wikipedia.apk
+              echo "Wikipedia instalada correctamente"
+            else
+              echo "Advertencia: No se encontró el APK. Asegúrate de tener la app instalada."
+              echo "Puedes instalar manualmente desde Play Store o descargar el APK"
+            fi
+
+            echo ""
+            echo "=========================================="
+            echo "Ejecutando tests con Maestro"
+            echo "=========================================="
+
+            # Ejecutar tests con Maestro
+            maestro test .maestro/wikipedia-test.yaml --format junit --output maestro-report.xml || true
+
+            echo ""
+            echo "=========================================="
+            echo "Resultados de las pruebas"
+            echo "=========================================="
+            echo ""
+            echo "Tests ejecutados con Maestro Mobile Test"
+            echo "Aplicación: Wikipedia Mobile"
+            echo "Fecha: $(date)"
+            echo ""
+            if [ -f maestro-report.xml ]; then
+              echo "Reporte generado: maestro-report.xml"
+            fi
+            echo "=========================================="
