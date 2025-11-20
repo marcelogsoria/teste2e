@@ -44,11 +44,12 @@ jobs:
 
             # Descargar e instalar Wikipedia APK
             echo "Descargando aplicación de Wikipedia..."
-            if wget -q --timeout=10 https://github.com/wikimedia/apps-android-wikipedia/releases/download/latest/app-wikipedia-beta-universal-release.apk -O wikipedia.apk 2>/dev/null; then
-              echo "APK descargado desde GitHub"
-            elif wget -q --timeout=10 https://f-droid.org/repo/org.wikipedia.apk -O wikipedia.apk 2>/dev/null; then
-              echo "APK descargado desde F-Droid"
-            else
+            DOWNLOAD_SUCCESS=false
+            wget -q --timeout=10 https://github.com/wikimedia/apps-android-wikipedia/releases/download/latest/app-wikipedia-beta-universal-release.apk -O wikipedia.apk 2>/dev/null && DOWNLOAD_SUCCESS=true && echo "APK descargado desde GitHub"
+            if [ "$DOWNLOAD_SUCCESS" = "false" ]; then
+              wget -q --timeout=10 https://f-droid.org/repo/org.wikipedia.apk -O wikipedia.apk 2>/dev/null && DOWNLOAD_SUCCESS=true && echo "APK descargado desde F-Droid"
+            fi
+            if [ "$DOWNLOAD_SUCCESS" = "false" ]; then
               echo "Advertencia: No se pudo descargar el APK automáticamente"
             fi
 
