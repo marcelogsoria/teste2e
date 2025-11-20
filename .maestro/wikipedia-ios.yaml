@@ -1,4 +1,4 @@
-appId: org.wikipedia
+appId: com.example.apple-samplecode.UICatalog
 ---
 # Test básico de Wikipedia Mobile
 # Este test realiza una búsqueda simple, ingresa texto y verifica acciones básicas
