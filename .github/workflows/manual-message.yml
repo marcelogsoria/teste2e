@@ -42,24 +42,18 @@ jobs:
             echo "Dispositivo conectado y listo"
             echo ""
 
-            # Descargar e instalar Wikipedia APK
-            echo "Descargando aplicación de Wikipedia..."
-            DOWNLOAD_SUCCESS=false
-            wget -q --timeout=10 https://github.com/wikimedia/apps-android-wikipedia/releases/download/latest/app-wikipedia-beta-universal-release.apk -O wikipedia.apk 2>/dev/null && DOWNLOAD_SUCCESS=true && echo "APK descargado desde GitHub"
-            if [ "$DOWNLOAD_SUCCESS" = "false" ]; then
-              wget -q --timeout=10 https://f-droid.org/repo/org.wikipedia.apk -O wikipedia.apk 2>/dev/null && DOWNLOAD_SUCCESS=true && echo "APK descargado desde F-Droid"
-            fi
-            if [ "$DOWNLOAD_SUCCESS" = "false" ]; then
-              echo "Advertencia: No se pudo descargar el APK automáticamente"
-            fi
-
-            if [ -f wikipedia.apk ]; then
-              echo "Instalando Wikipedia..."
+            # Instalar APK desde el repositorio
+            echo "Preparando aplicación desde mobileBuilds/build.apk..."
+            if [ -f mobileBuilds/build.apk ]; then
+              echo "APK encontrado en mobileBuilds/build.apk"
+              cp mobileBuilds/build.apk wikipedia.apk
+              echo "Instalando aplicación..."
               adb install -r wikipedia.apk
-              echo "Wikipedia instalada correctamente"
+              echo "Aplicación instalada correctamente"
             else
-              echo "Advertencia: No se encontró el APK. Asegúrate de tener la app instalada."
-              echo "Puedes instalar manualmente desde Play Store o descargar el APK"
+              echo "Error: No se encontró el APK en mobileBuilds/build.apk"
+              echo "Asegúrate de que el archivo existe en el repositorio"
+              exit 1
             fi
 
             echo ""
