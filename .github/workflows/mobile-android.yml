@@ -118,14 +118,13 @@ jobs:
             # Verificar directorio de trabajo y existencia del archivo
             echo "Directorio de trabajo actual: $(pwd)"
             echo "Verificando archivo de test..."
-            if [ -f ".maestro/wikipedia-test.yaml" ]; then
-              echo "Archivo encontrado: .maestro/wikipedia-test.yaml"
-            else
+            if [ ! -f ".maestro/wikipedia-test.yaml" ]; then
               echo "ERROR: Archivo .maestro/wikipedia-test.yaml no encontrado"
               echo "Archivos en .maestro/:"
               ls -la .maestro/ || echo "Directorio .maestro no existe"
               exit 1
             fi
+            echo "Archivo encontrado: .maestro/wikipedia-test.yaml"
 
             # Ejecutar tests con Maestro (con debug y screenshots)
             set +e  # No fallar inmediatamente si Maestro falla

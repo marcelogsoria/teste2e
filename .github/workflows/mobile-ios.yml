@@ -167,3 +167,10 @@ jobs:
           name: maestro-screenshots-ios
           path: maestro-screenshots/
           if-no-files-found: ignore
+      - name: Subir reporte de Maestro como artefacto
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: maestro-screenshots-builtin
+          path: .maestro/
+          if-no-files-found: ignore
