@@ -14,14 +14,14 @@ jobs:
       - name: List available simulators
         run: xcrun simctl list devices
 
-      - name: Boot iOS Simulator (iPhone 14)
+      - name: Boot iOS Simulator (iPhone 16)
         id: boot-simulator
         run: |
-          # Buscar iPhone 14 (puede ser iPhone 14, iPhone 14 Pro, etc.)
-          UDID=$(xcrun simctl list devices available | grep -i "iPhone 14" | grep -v "unavailable" | head -1 | grep -oE "[A-F0-9-]{36}")
+          # Buscar iPhone 16 (puede ser iPhone 16, iPhone 16 Pro, etc.)
+          UDID=$(xcrun simctl list devices available | grep -i "iPhone 16" | grep -v "unavailable" | head -1 | grep -oE "[A-F0-9-]{36}")
 
           if [ -z "$UDID" ]; then
-            echo "No se encontró iPhone 14 disponible. Listando todos los dispositivos:"
+            echo "No se encontró iPhone 16 disponible. Listando todos los dispositivos:"
             xcrun simctl list devices available
             exit 1
           fi
