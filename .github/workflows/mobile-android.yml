@@ -72,8 +72,7 @@ jobs:
             # Verificar directorio de trabajo y existencia del archivo
             echo "Directorio de trabajo actual: $(pwd)"
             echo "Verificando archivo de test..."
-            if [ -f ".maestro/wikipedia-test.yaml" ]
-            then
+            if [ -f ".maestro/wikipedia-test.yaml" ]; then
               echo "Archivo encontrado: .maestro/wikipedia-test.yaml"
             else
               echo "ERROR: Archivo .maestro/wikipedia-test.yaml no encontrado"
@@ -99,8 +98,7 @@ jobs:
             echo ""
 
             # Si Maestro falló, obtener información adicional de debug
-            if [ "$MAESTRO_EXIT_CODE" != "0" ]
-            then
+            if [ "$MAESTRO_EXIT_CODE" != "0" ]; then
               echo "=========================================="
               echo "DEBUG: Información de la pantalla actual (Maestro falló)"
               echo "=========================================="
@@ -110,8 +108,7 @@ jobs:
               echo "--- Jerarquía completa de la UI (uiautomator dump) ---"
               adb shell uiautomator dump /sdcard/ui_dump.xml
               adb pull /sdcard/ui_dump.xml ui_dump.xml 2>/dev/null || echo "No se pudo obtener dump de UI"
-              if [ -f ui_dump.xml ]
-              then
+              if [ -f ui_dump.xml ]; then
                 echo "Contenido del dump de UI:"
                 cat ui_dump.xml | head -200
                 echo ""
@@ -143,8 +140,7 @@ jobs:
               echo ""
             fi
 
-            if [ -f maestro-report.xml ]
-            then
+            if [ -f maestro-report.xml ]; then
               echo "Reporte generado: maestro-report.xml"
               cat maestro-report.xml
             else
