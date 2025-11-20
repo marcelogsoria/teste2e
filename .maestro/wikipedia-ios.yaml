@@ -9,7 +9,7 @@ appId: com.example.apple-samplecode.UICatalog
 - waitForAnimationToEnd
 
 # Tocar en el campo skip
-- tapOn: "Skip"
+- tapOn: "Search"
 
 # Tocar en el campo de búsqueda (acción básica: interactuar con campo de texto)
 - tapOn: "Search Wikipedia"
