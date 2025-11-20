@@ -1,0 +1,38 @@
+appId: org.wikipedia
+---
+# Test básico de Wikipedia Mobile
+# Este test realiza una búsqueda simple, ingresa texto y verifica acciones básicas
+
+- launchApp
+
+# Esperar a que la app cargue completamente
+- waitForAnimationToEnd
+
+# Tocar en el campo skip
+- tapOn: "Skip"
+
+# Tocar en el campo de búsqueda (acción básica: interactuar con campo de texto)
+- tapOn: "Search Wikipedia"
+
+# Ingresar texto en el campo de búsqueda (dato básico en campo de texto)
+- inputText: "Android"
+
+# Esperar a que aparezcan los resultados de búsqueda
+- waitForAnimationToEnd
+
+# Verificar que se muestren resultados de búsqueda (verificación básica)
+- assertVisible: ".*Android.*"
+
+# Seleccionar el primer resultado (acción básica: tocar en resultado)
+- tapOn:
+    point: "50%,25%"
+
+# Esperar a que cargue la página del artículo
+- waitForAnimationToEnd
+
+# Verificar que se abrió la página del artículo (verificación básica de acción)
+- assertVisible: ".*Android.*"
+
+# Verificar que hay contenido visible en la página (verificación adicional)
+- assertVisible:
+    id: "org.wikipedia:id/view_page_title_text"
