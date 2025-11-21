@@ -4,6 +4,7 @@ appId: org.wikipedia
 # Este test realiza una búsqueda simple, ingresa texto y verifica acciones básicas
 
 - launchApp
+    clearState: true
 
 # Esperar a que la app cargue completamente
 - waitForAnimationToEnd
