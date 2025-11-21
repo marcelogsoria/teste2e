@@ -157,20 +157,26 @@ jobs:
 
           # Guardar screenshots en un directorio para artefactos
           mkdir -p maestro-screenshots
-          find . -name "*.png" -type f -mmin -5 -exec cp {} maestro-screenshots/ \; || true
+          
+          # Copiar screenshots de Maestro (ubicación por defecto)
+          # Maestro guarda los resultados en carpetas con timestamp dentro de ~/.maestro/tests/
+          if [ -d "$HOME/.maestro/tests" ]; then
+            echo "Encontrados artefactos en default location, copiando..."
+            cp -r "$HOME/.maestro/tests/"* maestro-screenshots/ || true
+          else
+            echo "No se encontró el directorio $HOME/.maestro/tests/"
+          fi
+
+          # Copiar screenshots manuales (si los hubo)
           find . -name "maestro-failure-*.png" -exec cp {} maestro-screenshots/ \; || true
 
-      - name: Subir screenshots como artefactos
+      - name: Subir artefactos de Maestro
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: maestro-screenshots-ios
-          path: maestro-screenshots/
-          if-no-files-found: ignore
-      - name: Subir reporte de Maestro como artefacto
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: maestro-screenshots-builtin
-          path: .maestro/
-          if-no-files-found: ignore
+          name: maestro-artifacts
+          path: |
+            maestro-report.xml
+            maestro-screenshots/
+            *.log
+          if-no-files-found: warn
