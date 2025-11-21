@@ -12,7 +12,7 @@ appId: com.example.apple-samplecode.UICatalog
 - tapOn: "Search"
 
 # Tocar en el campo de búsqueda (acción básica: interactuar con campo de texto)
-- tapOn: "Search Wikipedia"
+- tapOn: "Default"
 
 # Ingresar texto en el campo de búsqueda (dato básico en campo de texto)
 - inputText: "Android"

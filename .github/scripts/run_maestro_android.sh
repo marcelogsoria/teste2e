@@ -38,14 +38,6 @@ fi
 
 # Verificar directorio de trabajo y existencia del archivo
 echo "Directorio de trabajo actual: $(pwd)"
-echo "Verificando archivo de test..."
-if [ ! -f ".maestro/wikipedia-test.yaml" ]; then
-  echo "ERROR: Archivo .maestro/wikipedia-test.yaml no encontrado"
-  echo "Archivos en .maestro/:"
-  ls -la .maestro/ || echo "Directorio .maestro no existe"
-  exit 1
-fi
-echo "Archivo encontrado: .maestro/wikipedia-test.yaml"
 
 # Ejecutar tests con Maestro (con debug y screenshots)
 set +e  # No fallar inmediatamente si Maestro falla
@@ -63,63 +55,81 @@ echo "Aplicación: Wikipedia Mobile"
 echo "Fecha: $(date)"
 echo ""
 
-# Si Maestro falló, obtener información adicional de debug
-if [ "$MAESTRO_EXIT_CODE" != "0" ]; then
-  echo "=========================================="
-  echo "DEBUG: Información de la pantalla actual (Maestro falló)"
-  echo "=========================================="
-  
-  # Obtener información de la jerarquía de la UI actual
-  echo ""
-  echo "--- Jerarquía completa de la UI (uiautomator dump) ---"
-  adb shell uiautomator dump /sdcard/ui_dump.xml
-  adb pull /sdcard/ui_dump.xml ui_dump.xml 2>/dev/null || echo "No se pudo obtener dump de UI"
-  if [ -f ui_dump.xml ]; then
-    echo "Contenido del dump de UI:"
-    cat ui_dump.xml | head -200
-    echo ""
-    echo "... (truncado, archivo completo guardado en ui_dump.xml)"
+mkdir -p videos
+for file in .maestro/android/*.yaml; do
+  echo "Ejecutando $file"
+
+  maestro record --output maestro-video.mp4 -- maestro test "$file" -format junit --output maestro-report.xml
+  MAESTRO_EXIT_CODE=$?
+
+  if [ $MAESTRO_EXIT_CODE -eq 0 ]; then
+    echo "Test OK → borrando video"
+    rm maestro-video.mp4
+  else
+    echo "Test FAILED → guardando video"
+    mv maestro-video.mp4 "videos/$(basename $file .yaml).mp4"
   fi
-  
-  echo ""
-  echo "--- Información de ventanas activas (dumpsys window) ---"
-  adb shell dumpsys window windows | grep -E "mCurrentFocus|mFocusedApp" | head -10 || echo "No se pudo obtener información de ventanas"
-  
-  echo ""
-  echo "--- Elementos visibles en pantalla (texto) ---"
-  adb shell uiautomator dump /dev/tty 2>/dev/null | grep -oP 'text="[^"]*"' | head -30 || echo "No se pudieron obtener elementos de texto"
-  
-  echo ""
-  echo "--- Capturando screenshot manual del estado actual ---"
-  SCREENSHOT_NAME="maestro-failure-$(date +%Y%m%d-%H%M%S).png"
-  adb shell screencap -p /sdcard/screenshot.png
-  adb pull /sdcard/screenshot.png "$SCREENSHOT_NAME" 2>/dev/null && echo "Screenshot guardado: $SCREENSHOT_NAME" || echo "No se pudo capturar screenshot"
-  
-  echo ""
-  echo "--- Logs recientes de la aplicación ---"
-  adb logcat -d -t 100 | grep -i "wikipedia\|error\|exception" | tail -50 || adb logcat -d | tail -30
-  
-  echo ""
-  echo "--- Screenshots generados por Maestro ---"
-  find . -name "*.png" -type f -mmin -5 | head -10 || echo "No se encontraron screenshots recientes de Maestro"
-  
-  echo ""
-fi
 
-if [ -f maestro-report.xml ]; then
-  echo "Reporte generado: maestro-report.xml"
-  cat maestro-report.xml
-else
-  echo "No se generó reporte de Maestro"
-fi
+  if [ -f maestro-report.xml ]; then
+    echo "Reporte generado: maestro-report.xml"
+    cat maestro-report.xml
+  else
+    echo "No se generó reporte de Maestro"
+  fi
 
-echo "=========================================="
+  echo "=========================================="
+done
+
+# Si Maestro falló, obtener información adicional de debug
+# if [ "$MAESTRO_EXIT_CODE" != "0" ]; then
+#   echo "=========================================="
+#   echo "DEBUG: Información de la pantalla actual (Maestro falló)"
+#   echo "=========================================="
+  
+#   # Obtener información de la jerarquía de la UI actual
+#   echo ""
+#   echo "--- Jerarquía completa de la UI (uiautomator dump) ---"
+#   adb shell uiautomator dump /sdcard/ui_dump.xml
+#   adb pull /sdcard/ui_dump.xml ui_dump.xml 2>/dev/null || echo "No se pudo obtener dump de UI"
+#   if [ -f ui_dump.xml ]; then
+#     echo "Contenido del dump de UI:"
+#     cat ui_dump.xml | head -200
+#     echo ""
+#     echo "... (truncado, archivo completo guardado en ui_dump.xml)"
+#   fi
+  
+#   echo ""
+#   echo "--- Información de ventanas activas (dumpsys window) ---"
+#   adb shell dumpsys window windows | grep -E "mCurrentFocus|mFocusedApp" | head -10 || echo "No se pudo obtener información de ventanas"
+  
+#   echo ""
+#   echo "--- Elementos visibles en pantalla (texto) ---"
+#   adb shell uiautomator dump /dev/tty 2>/dev/null | grep -oP 'text="[^"]*"' | head -30 || echo "No se pudieron obtener elementos de texto"
+  
+#   echo ""
+#   echo "--- Capturando screenshot manual del estado actual ---"
+#   SCREENSHOT_NAME="maestro-failure-$(date +%Y%m%d-%H%M%S).png"
+#   adb shell screencap -p /sdcard/screenshot.png
+#   adb pull /sdcard/screenshot.png "$SCREENSHOT_NAME" 2>/dev/null && echo "Screenshot guardado: $SCREENSHOT_NAME" || echo "No se pudo capturar screenshot"
+  
+#   echo ""
+#   echo "--- Logs recientes de la aplicación ---"
+#   adb logcat -d -t 100 | grep -i "wikipedia\|error\|exception" | tail -50 || adb logcat -d | tail -30
+  
+#   echo ""
+#   echo "--- Screenshots generados por Maestro ---"
+#   find . -name "*.png" -type f -mmin -5 | head -10 || echo "No se encontraron screenshots recientes de Maestro"
+  
+#   echo ""
+# fi
+
+
 
 # Guardar screenshots y dumps en un directorio para artefactos
 mkdir -p maestro-screenshots
 find . -name "*.png" -type f -mmin -5 -exec cp {} maestro-screenshots/ \; || true
-find . -name "maestro-failure-*.png" -exec cp {} maestro-screenshots/ \; || true
-[ -f ui_dump.xml ] && cp ui_dump.xml maestro-screenshots/ || true
+find . -name "*.mp4" -type f -mmin -5 -exec cp {} maestro-screenshots/ \; || true
+find . -name "maestro-report.xml" -exec cp {} maestro-screenshots/ \; || true
 
 # Exit with the error code if tests failed
 if [ "$MAESTRO_EXIT_CODE" != "0" ]; then
