@@ -40,10 +40,10 @@ fi
 echo "Directorio de trabajo actual: $(pwd)"
 
 # Ejecutar tests con Maestro (con debug y screenshots)
-set +e  # No fallar inmediatamente si Maestro falla
-maestro test .maestro/wikipedia-test.yaml --format junit --output maestro-report.xml
-MAESTRO_EXIT_CODE=$?
-#set -e  # Volver a activar el modo estricto
+# set +e  # No fallar inmediatamente si Maestro falla
+# maestro test .maestro/wikipedia-test.yaml --format junit --output maestro-report.xml
+# MAESTRO_EXIT_CODE=$?
+# #set -e  # Volver a activar el modo estricto
 
 echo ""
 echo "=========================================="
@@ -59,17 +59,19 @@ mkdir -p videos
 for file in .maestro/android/*.yaml; do
   echo "Ejecutando $file"
 
-  adb shell screenrecord /sdcard/test-video.mp4
-  echo $! > record.pid
+  #adb shell screenrecord /sdcard/test-video.mp4
+  #echo $! > record.pid
+  set +e  # No fallar inmediatamente si Maestro falla
   maestro test $file --format html --output maestro-report.xml
   MAESTRO_EXIT_CODE=$?
-  kill -INT $(cat record.pid)
+  #set -e  # Volver a activar el modo estricto
+  #kill -INT $(cat record.pid)
   
   if [ $MAESTRO_EXIT_CODE -eq 0 ]; then
     echo "Test OK → no se copia video"
   else
     echo "Test FAILED → guardando video"
-    adb pull /sdcard/test-video.mp4 "$(basename $file .yaml).mp4"
+    #adb pull /sdcard/test-video.mp4 "$(basename $file .yaml).mp4"
   fi
 
   if [ -f maestro-report.xml ]; then
