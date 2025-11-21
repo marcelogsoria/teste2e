@@ -59,16 +59,17 @@ mkdir -p videos
 for file in .maestro/android/*.yaml; do
   echo "Ejecutando $file"
 
-  maestro record --local $file
-  maestro test $file --format junit --output maestro-report.xml
+  adb shell screenrecord /sdcard/test-video.mp4
+  echo $! > record.pid
+  maestro test $file --format html --output maestro-report.xml
   MAESTRO_EXIT_CODE=$?
-
+  kill -INT $(cat record.pid)
+  
   if [ $MAESTRO_EXIT_CODE -eq 0 ]; then
-    echo "Test OK → borrando video"
-    rm maestro-video.mp4
+    echo "Test OK → no se copia video"
   else
     echo "Test FAILED → guardando video"
-    mv maestro-video.mp4 "videos/$(basename $file .yaml).mp4"
+    adb pull /sdcard/test-video.mp4 "$(basename $file .yaml).mp4"
   fi
 
   if [ -f maestro-report.xml ]; then

@@ -1,0 +1,17 @@
+appId: org.wikipedia
+---
+- launchApp:
+    clearState: true
+- tapOn: "ADD OR EDIT.*"
+- tapOn: "ADD LANGUAGE"
+- tapOn: Search
+- inputText: "Greek"
+- assertVisible: "Ελληνικά"
+- tapOn: "Ελληνικά"
+- tapOn: "Back"
+- tapOn: .+Ελληνικά
+- tapOn: Continue
+- tapOn: Continue
+- tapOn: Continue
+- tapOn: Get started
+- assertVisible: Wikipedia games
