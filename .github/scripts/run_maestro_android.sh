@@ -43,7 +43,7 @@ echo "Directorio de trabajo actual: $(pwd)"
 set +e  # No fallar inmediatamente si Maestro falla
 maestro test .maestro/wikipedia-test.yaml --format junit --output maestro-report.xml
 MAESTRO_EXIT_CODE=$?
-set -e  # Volver a activar el modo estricto
+#set -e  # Volver a activar el modo estricto
 
 echo ""
 echo "=========================================="
