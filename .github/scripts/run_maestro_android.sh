@@ -59,7 +59,8 @@ mkdir -p videos
 for file in .maestro/android/*.yaml; do
   echo "Ejecutando $file"
 
-  maestro record --output maestro-video.mp4 -- maestro test "$file" -format junit --output maestro-report.xml
+  maestro record --local $file
+  maestro test $file --format junit --output maestro-report.xml
   MAESTRO_EXIT_CODE=$?
 
   if [ $MAESTRO_EXIT_CODE -eq 0 ]; then
