@@ -56,7 +56,7 @@ echo "Fecha: $(date)"
 echo ""
 
 set +e  # No fallar inmediatamente si Maestro falla
-maestro test .maestro/android/ --format html --output maestro-report.xml
+maestro test .maestro/android/ --format html --output maestro-report.html
 MAESTRO_EXIT_CODE=$?
 set -e  # Volver a activar el modo estricto
 
@@ -66,9 +66,9 @@ else
   echo "Tests FAILED"
 fi
 
-if [ -f maestro-report.xml ]; then
-  echo "Reporte generado: maestro-report.xml"
-  cat maestro-report.xml
+if [ -f maestro-report.html ]; then
+  echo "Reporte generado: maestro-report.html"
+  cat maestro-report.html
 else
   echo "No se generó reporte de Maestro"
 fi
