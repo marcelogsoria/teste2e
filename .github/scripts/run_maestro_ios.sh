@@ -29,7 +29,7 @@ echo "PID del proceso de grabación: $VIDEO_PID"
 set +e  # No fallar inmediatamente si Maestro falla
 maestro test .maestro/wikipedia-ios.yaml --format junit --output maestro-report.xml
 MAESTRO_EXIT_CODE=$?
-set -e  # Volver a activar el modo estricto
+#set -e  # Volver a activar el modo estricto
 
 kill $VIDEO_PID
 sleep 2  # darle tiempo a cerrar el archivo
