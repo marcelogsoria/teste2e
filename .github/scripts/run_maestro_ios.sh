@@ -22,17 +22,17 @@ else
 fi
 
 # Ejecutar tests con Maestro (con debug y screenshots)
-xcrun simctl io booted recordVideo --force ./recording.mov &
-VIDEO_PID=$!
-echo "PID del proceso de grabación: $VIDEO_PID"
+#xcrun simctl io booted recordVideo --force ./recording.mov &
+#VIDEO_PID=$!
+#echo "PID del proceso de grabación: $VIDEO_PID"
 
 set +e  # No fallar inmediatamente si Maestro falla
-maestro test .maestro/wikipedia-ios.yaml --format junit --output maestro-report.xml
+maestro test .maestro/ios/ --format junit --output maestro-report.xml
 MAESTRO_EXIT_CODE=$?
 #set -e  # Volver a activar el modo estricto
 
-kill $VIDEO_PID
-sleep 2  # darle tiempo a cerrar el archivo
+#kill $VIDEO_PID
+#sleep 2  # darle tiempo a cerrar el archivo
 
 echo ""
 echo "=========================================="
@@ -44,9 +44,9 @@ echo "Aplicación: UIKitCatalog iOS"
 echo "Fecha: $(date)"
 echo ""
 
-if [ "$MAESTRO_EXIT_CODE" != "0" ]; then
-  cp ./recording.mov ./videos/maestro-video.mov
-fi
+# if [ "$MAESTRO_EXIT_CODE" != "0" ]; then
+#   cp ./recording.mov ./videos/maestro-video.mov
+# fi
 
 # Si Maestro falló, obtener información adicional de debug
 # if [ "$MAESTRO_EXIT_CODE" != "0" ]; then
