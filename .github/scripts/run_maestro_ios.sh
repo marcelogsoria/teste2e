@@ -11,15 +11,6 @@ maestro --version || echo "Advertencia: Maestro no está disponible"
 
 # Verificar directorio de trabajo y existencia del archivo
 echo "Directorio de trabajo actual: $(pwd)"
-echo "Verificando archivo de test..."
-if [ -f ".maestro/wikipedia-ios.yaml" ]; then
-  echo "Archivo encontrado: .maestro/wikipedia-ios.yaml"
-else
-  echo "ERROR: Archivo .maestro/wikipedia-ios.yaml no encontrado"
-  echo "Archivos en .maestro/:"
-  ls -la .maestro/ || echo "Directorio .maestro no existe"
-  exit 1
-fi
 
 # Ejecutar tests con Maestro (con debug y screenshots)
 #xcrun simctl io booted recordVideo --force ./recording.mov &
