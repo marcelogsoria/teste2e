@@ -55,34 +55,52 @@ echo "Aplicación: Wikipedia Mobile"
 echo "Fecha: $(date)"
 echo ""
 
-mkdir -p videos
-for file in .maestro/android/*.yaml; do
-  echo "Ejecutando $file"
+set +e  # No fallar inmediatamente si Maestro falla
+maestro test .maestro/android/ --format html --output maestro-report.xml
+MAESTRO_EXIT_CODE=$?
+set -e  # Volver a activar el modo estricto
 
-  #adb shell screenrecord /sdcard/test-video.mp4
-  #echo $! > record.pid
-  set +e  # No fallar inmediatamente si Maestro falla
-  maestro test $file --format html --output maestro-report.xml
-  MAESTRO_EXIT_CODE=$?
-  #set -e  # Volver a activar el modo estricto
-  #kill -INT $(cat record.pid)
+if [ $MAESTRO_EXIT_CODE -eq 0 ]; then
+  echo "Tests OK"
+else
+  echo "Tests FAILED"
+fi
+
+if [ -f maestro-report.xml ]; then
+  echo "Reporte generado: maestro-report.xml"
+  cat maestro-report.xml
+else
+  echo "No se generó reporte de Maestro"
+fi
+
+# mkdir -p videos
+# for file in .maestro/android/*.yaml; do
+#   echo "Ejecutando $file"
+
+#   #adb shell screenrecord /sdcard/test-video.mp4
+#   #echo $! > record.pid
+#   set +e  # No fallar inmediatamente si Maestro falla
+#   maestro test $file --format html --output maestro-report.xml
+#   MAESTRO_EXIT_CODE=$?
+#   #set -e  # Volver a activar el modo estricto
+#   #kill -INT $(cat record.pid)
   
-  if [ $MAESTRO_EXIT_CODE -eq 0 ]; then
-    echo "Test OK → no se copia video"
-  else
-    echo "Test FAILED → guardando video"
-    #adb pull /sdcard/test-video.mp4 "$(basename $file .yaml).mp4"
-  fi
+#   if [ $MAESTRO_EXIT_CODE -eq 0 ]; then
+#     echo "Test OK → no se copia video"
+#   else
+#     echo "Test FAILED → guardando video"
+#     #adb pull /sdcard/test-video.mp4 "$(basename $file .yaml).mp4"
+#   fi
 
-  if [ -f maestro-report.xml ]; then
-    echo "Reporte generado: maestro-report.xml"
-    cat maestro-report.xml
-  else
-    echo "No se generó reporte de Maestro"
-  fi
+#   if [ -f maestro-report.xml ]; then
+#     echo "Reporte generado: maestro-report.xml"
+#     cat maestro-report.xml
+#   else
+#     echo "No se generó reporte de Maestro"
+#   fi
 
-  echo "=========================================="
-done
+#   echo "=========================================="
+# done
 
 # Si Maestro falló, obtener información adicional de debug
 # if [ "$MAESTRO_EXIT_CODE" != "0" ]; then
