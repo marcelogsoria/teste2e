@@ -58,7 +58,7 @@ echo ""
 set +e  # No fallar inmediatamente si Maestro falla
 maestro test .maestro/android/ --format html --output maestro-report.html
 MAESTRO_EXIT_CODE=$?
-set -e  # Volver a activar el modo estricto
+#set -e  # Volver a activar el modo estricto
 
 if [ $MAESTRO_EXIT_CODE -eq 0 ]; then
   echo "Tests OK"
