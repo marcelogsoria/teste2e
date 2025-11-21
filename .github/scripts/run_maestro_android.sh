@@ -145,10 +145,18 @@ fi
 #   echo ""
 # fi
 
-
-
 # Guardar screenshots y dumps en un directorio para artefactos
 mkdir -p maestro-screenshots
+
+# Copiar screenshots de Maestro (ubicación por defecto)
+# Maestro guarda los resultados en carpetas con timestamp dentro de ~/.maestro/tests/
+if [ -d "$HOME/.maestro/tests" ]; then
+  echo "Encontrados artefactos en default location, copiando..."
+  cp -r "$HOME/.maestro/tests/"* maestro-screenshots/ || true
+else
+  echo "No se encontró el directorio $HOME/.maestro/tests/"
+fi
+
 find . -name "*.png" -type f -mmin -5 -exec cp {} maestro-screenshots/ \; || true
 find . -name "*.mp4" -type f -mmin -5 -exec cp {} maestro-screenshots/ \; || true
 find . -name "maestro-report.xml" -exec cp {} maestro-screenshots/ \; || true
