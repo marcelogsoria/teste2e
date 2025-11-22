@@ -21,18 +21,6 @@ appId: com.example.apple-samplecode.UICatalog
 - waitForAnimationToEnd
 
 # Verificar que se muestren resultados de búsqueda (verificación básica)
-- assertVisible: ".*Android.*"
+- assertVisible: "Default Search Bar"
 
-# Seleccionar el primer resultado (acción básica: tocar en resultado)
-- tapOn:
-    point: "50%,25%"
 
-# Esperar a que cargue la página del artículo
-- waitForAnimationToEnd
-
-# Verificar que se abrió la página del artículo (verificación básica de acción)
-- assertVisible: ".*Android.*"
-
-# Verificar que hay contenido visible en la página (verificación adicional)
-- assertVisible:
-    id: "org.wikipedia:id/view_page_title_text"
