@@ -87,3 +87,8 @@ fi
 # Copiar screenshots manuales (si los hubo)
 find . -name "*.mov" -exec cp {} maestro-screenshots/ \; || true
 find . -name "*.png" -exec cp {} maestro-screenshots/ \; || true
+
+# Exit with the error code if tests failed
+if [ "$MAESTRO_EXIT_CODE" != "0" ]; then
+  exit $MAESTRO_EXIT_CODE
+fi
