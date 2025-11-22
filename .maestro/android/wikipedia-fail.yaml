@@ -3,7 +3,7 @@ appId: org.wikipedia
 # Test básico de Wikipedia Mobile
 # Este test realiza una búsqueda simple, ingresa texto y verifica acciones básicas
 
-- launchApp
+- launchApp:
     clearState: true
 
 # Esperar a que la app cargue completamente
